@@ -34,9 +34,9 @@ internal static class RegionSelectHelper
 
     #endregion
 
-    internal static Task<Selection> Select(ModeType mode, Rect previousRegion, Monitor currentMonitor, bool quickSelection = false)
+    internal static Task<Selection> Select(ModeType mode, Rect previousRegion, Monitor currentMonitor, bool quickSelection = false, bool acceptOnRelease = false)
     {
-        _taskCompletionSource = new TaskCompletionSource<Selection>();
+        _taskCompletionSource = new TaskCompletionSource<Selection>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         Selectors.Clear();
 
@@ -49,7 +49,7 @@ internal static class RegionSelectHelper
         foreach (var monitor in monitors)
         {
             var selector = new RegionSelector();
-            selector.Select(monitor, mode, monitor.Handle == currentMonitor?.Handle ? previousRegion : Rect.Empty, RegionSelected, RegionChanged, RegionGotHover, RegionAborted);
+            selector.Select(monitor, mode, monitor.Handle == currentMonitor?.Handle ? previousRegion : Rect.Empty, RegionSelected, RegionChanged, RegionGotHover, RegionAborted, acceptOnRelease);
 
             Selectors.Add(selector);
         }
@@ -69,7 +69,7 @@ internal static class RegionSelectHelper
         foreach (var selector in Selectors)
             selector.CancelSelection();
 
-        _taskCompletionSource.SetResult(new Selection(monitor, region));
+        _taskCompletionSource.TrySetResult(new Selection(monitor, region));
     }
 
     private static void RegionChanged(Monitor monitor)
@@ -91,6 +91,6 @@ internal static class RegionSelectHelper
         foreach (var selector in Selectors)
             selector.CancelSelection();
 
-        _taskCompletionSource.SetResult(new Selection(null, Rect.Empty));
+        _taskCompletionSource.TrySetResult(new Selection(null, Rect.Empty));
     }
 }

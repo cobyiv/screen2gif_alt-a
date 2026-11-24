@@ -1,0 +1,15 @@
+{
+  "StartWithWindows": true,
+  "Theme": "system",
+  "OutputFolder": "%USERPROFILE%\\Videos\\Captures",
+  "Filename": "yyyy-MM-dd_HH-mm-ss-fff",
+  "CaptureFps": 30,
+  "CopyFile": true,
+  "Notify": true,
+  "CaptureShortcuts": [ { "Shortcut": "Ctrl+Alt+R", "Audio": "none" } ],
+  "Presets": [
+    { "Name": "MP4", "Format": "mp4", "Fps": 30, "Crf": 23, "MaxWidth": 0, "GifColors": 256, "Audio": "none", "Shortcut": "Ctrl+Alt+M", "Folder": "" },
+    { "Name": "GIF", "Format": "gif", "Fps": 15, "Crf": 23, "MaxWidth": 0, "GifColors": 256, "Audio": "none", "Shortcut": "Ctrl+Alt+G", "Folder": "" }
+  ],
+  "EditShortcut": "Ctrl+Alt+E"
+}

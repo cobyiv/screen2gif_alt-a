@@ -883,6 +883,7 @@ internal class ApplicationViewModel : ApplicationBaseViewModel
     internal async Task CheckForUpdates(bool forceCheck = false)
     {
         Global.UpdateAvailable = null;
+        if (QuickCapture.QuickRuntime.Settings != null) return;
 
 #if FULL_MULTI_MSIX_STORE
             return;

@@ -125,6 +125,7 @@
     <EmbeddedResource Include="Resources\Style.css" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="NAudio" />
     <PackageReference Include="KGySoft.Drawing" />
     <PackageReference Include="KGySoft.Drawing.Wpf" />
   </ItemGroup>
@@ -157,7 +158,6 @@
     <DebugType>embedded</DebugType>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <SignAssembly>False</SignAssembly>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
     <Version>2.43.2</Version>
     <Copyright>Copyright© N-Tech + Nicke Manarin 2026</Copyright>

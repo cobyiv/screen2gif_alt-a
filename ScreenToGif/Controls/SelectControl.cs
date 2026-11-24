@@ -20,6 +20,7 @@ namespace ScreenToGif.Controls;
 
 public class SelectControl : Control
 {
+    internal bool AcceptOnRelease { get; set; }
     #region Variables
 
     /// <summary>
@@ -429,6 +430,7 @@ public class SelectControl : Control
             }
 
             FinishedSelection = true;
+            if (AcceptOnRelease) { e.Handled = true; Accept(); return; }
 
             AdjustThumbs();
             AdjustStatusControls(e.GetPosition(this));

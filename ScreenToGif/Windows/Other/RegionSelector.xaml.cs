@@ -30,7 +30,7 @@ public partial class RegionSelector : Window
     }
 
 
-    public void Select(Monitor monitor, ModeType mode, Rect previousRegion, Action<Monitor, Rect> selected, Action<Monitor> changed, Action<Monitor> gotHover, Action aborted)
+    public void Select(Monitor monitor, ModeType mode, Rect previousRegion, Action<Monitor, Rect> selected, Action<Monitor> changed, Action<Monitor> gotHover, Action aborted, bool acceptOnRelease = false)
     {
         //Resize to fit given window.
         Left = monitor.Bounds.Left;
@@ -52,6 +52,7 @@ public partial class RegionSelector : Window
         SelectControl.ParentLeft = Left;
         SelectControl.ParentTop = Top;
         SelectControl.Mode = mode;
+        SelectControl.AcceptOnRelease = acceptOnRelease;
 
         if (mode == ModeType.Region)
         {

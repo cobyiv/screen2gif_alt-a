@@ -64,7 +64,7 @@ public class UserSettings : INotifyPropertyChanged
     {
         //Paths.
         var local = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Settings.xaml");
-        var appData = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenToGif"), "Settings.xaml");
+        var appData = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenToGif-QuickCapture"), "Settings.xaml");
 
         //Only creates an empty AppData settings file if there's no local settings defined.
         if (!File.Exists(local) && !File.Exists(appData))
@@ -281,7 +281,7 @@ public class UserSettings : INotifyPropertyChanged
         try
         {
             //Filename (Local or AppData).
-            var folder = !saveToAppData && _local != null ? AppDomain.CurrentDomain.BaseDirectory : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenToGif");
+            var folder = !saveToAppData && _local != null ? AppDomain.CurrentDomain.BaseDirectory : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenToGif-QuickCapture");
             var filename = Path.Combine(folder, "Settings.xaml");
 
             //Create folder.
@@ -337,7 +337,7 @@ public class UserSettings : INotifyPropertyChanged
         try
         {
             //Filename (Local or AppData).
-            var folder = _local != null ? AppDomain.CurrentDomain.BaseDirectory : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenToGif");
+            var folder = _local != null ? AppDomain.CurrentDomain.BaseDirectory : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenToGif-QuickCapture");
             var filename = Path.Combine(folder, "Settings.xaml");
             var backup = filename + ".bak";
 
@@ -430,7 +430,7 @@ public class UserSettings : INotifyPropertyChanged
 
     public static void RemoveAppDataSettings()
     {
-        var appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenToGif", "Settings.xaml");
+        var appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenToGif-QuickCapture", "Settings.xaml");
 
         if (File.Exists(appData))
             File.Delete(appData);

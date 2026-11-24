@@ -1,3 +1,5 @@
+> **Quick Capture fork preview:** [Build and use instructions](QuickCapture/README.md).
+
 <p align="center">
   <a href="https://github.com/NickeManarin/ScreenToGif" target="_blank">
     <img align="center" alt="screen recorder" src="https://nickemanarin.github.io/ScreenToGif-Website/logos/ms-icon-144x144.png" />

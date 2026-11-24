@@ -206,6 +206,7 @@ public partial class NewRecorder
             MoveCommandPanel();
         }
 
+        if (await QuickBeginIfPending()) return;
         //Automation arguments were passed by command line.
         if (Arguments.Open)
         {
@@ -484,6 +485,7 @@ public partial class NewRecorder
 
     private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
+        if (QuickSession && quickStopping && !quickAllowClose) { e.Cancel = true; return; }
         //Close the selecting rectangle.
         _regionSelection.Close();
 
@@ -556,6 +558,7 @@ public partial class NewRecorder
     /// </summary>
     private async void KeyHookTarget(object sender, CustomKeyEventArgs e)
     {
+        if (QuickSession) return;
         if (RegionSelectHelper.IsSelecting || Stage == RecorderStages.Discarding)
             return;
 
@@ -1049,7 +1052,7 @@ public partial class NewRecorder
                     //Detects a possible intersection of capture region and capture controls.
                     var isIntersecting = IsRegionIntersected();
 
-                    if (isIntersecting)
+                    if (isIntersecting && !QuickSession)
                     {
                         Topmost = false;
                         Splash.Display(LocalizationHelper.GetWithFormat("S.Recorder.Splash.Title", "Press {0} to stop the recording", KeyHelper.GetSelectKeyText(UserSettings.All.StopShortcut, UserSettings.All.StopModifiers)),
@@ -1059,7 +1062,7 @@ public partial class NewRecorder
 
                     #region Start
 
-                    if (isIntersecting || UserSettings.All.UsePreStart)
+                    if (!QuickSession && (isIntersecting || UserSettings.All.UsePreStart))
                     {
                         Stage = RecorderStages.PreStarting;
 
@@ -1071,7 +1074,7 @@ public partial class NewRecorder
                         return;
                     }
 
-                    Hide();
+                    if (!QuickSession || isIntersecting) Hide();
                     StartCapture();
 
                     Stage = RecorderStages.Recording;
@@ -1223,6 +1226,7 @@ public partial class NewRecorder
 
     internal void Pause()
     {
+        if (QuickSession && quickStopping) return;
         try
         {
             if (Stage != RecorderStages.Recording || UserSettings.All.CaptureFrequency is CaptureFrequencies.Manual or CaptureFrequencies.Interaction)
@@ -1247,6 +1251,8 @@ public partial class NewRecorder
 
     private async Task Stop()
     {
+        if (QuickSession && quickStopping) return;
+        if (QuickSession) { quickStopping = true; quickAllowClose = false; QuickButtons.IsEnabled = false; }
         try
         {
             RecordControlsGrid.IsEnabled = false;
@@ -1261,7 +1267,9 @@ public partial class NewRecorder
                 #region Finishes if it's recording and it has any frames
 
                 await Task.Delay(100);
-
+                await QuickBeforeClose();
+                if (QuickSession) Stage = RecorderStages.Stopped;
+                quickAllowClose = true;
                 Close();
                 return;
 
@@ -1276,6 +1284,7 @@ public partial class NewRecorder
 
             Splash.Dismiss();
             Stage = RecorderStages.Stopped;
+            if (QuickSession) { quickPreset = null; Show(); }
 
             //Enables the controls that are disabled while recording;
             FrequencyIntegerUpDown.IsEnabled = true;
@@ -1301,6 +1310,8 @@ public partial class NewRecorder
         }
         finally
         {
+            quickStopping = false;
+            if (IsLoaded) QuickButtons.IsEnabled = true;
             if (IsLoaded)
             {
                 Title = "ScreenToGif";
@@ -1318,6 +1329,7 @@ public partial class NewRecorder
 
     private async Task Discard()
     {
+        if (QuickSession && quickStopping) return;
         Pause();
 
         if (UserSettings.All.NotifyRecordingDiscard && !Dialog.Ask(LocalizationHelper.Get("S.Recorder.Discard.Title"),
@@ -1439,14 +1451,14 @@ public partial class NewRecorder
         Capture.Start(GetCaptureInterval(), (int)CaptureRegion.X, (int)CaptureRegion.Y, (int)CaptureRegion.Width, (int)CaptureRegion.Height, _regionSelection.Scale, Project);
     }
 
-    private async Task PickRegion(ModeType mode, bool quickSelection = false)
+    private async Task PickRegion(ModeType mode, bool quickSelection = false, bool acceptOnRelease = false)
     {
         _regionSelection.Hide();
         Hide();
 
         var previousMode = UserSettings.All.RecorderModeIndex;
 
-        var selection = await RegionSelectHelper.Select(mode, _viewModel.Region, _regionSelection.Monitor, quickSelection);
+        var selection = await RegionSelectHelper.Select(mode, _viewModel.Region, _regionSelection.Monitor, quickSelection, acceptOnRelease);
 
         ForceUpdate();
 
@@ -1694,7 +1706,7 @@ public partial class NewRecorder
     /// <returns></returns>
     private bool IsRegionIntersected()
     {
-        return IsVisible && CaptureRegion.IntersectsWith(new Rect(Left, Top, Width, Height).Scale(_regionSelection.Scale));
+        return IsVisible && CaptureRegion.IntersectsWith(new Rect(Left, Top, QuickSession ? ActualWidth : Width, QuickSession ? ActualHeight : Height).Scale(_regionSelection.Scale));
     }
 
     private void Follow()
@@ -1820,6 +1832,7 @@ public partial class NewRecorder
     {
         DisplayTimer.Start();
 
+        QuickStartAudio();
         base.StartCapture();
     }
 
@@ -1827,6 +1840,7 @@ public partial class NewRecorder
     {
         DisplayTimer.Pause();
 
+        QuickPauseAudio();
         base.PauseCapture();
     }
 
@@ -1835,6 +1849,7 @@ public partial class NewRecorder
         DisplayTimer.Stop();
 
         await base.StopCapture();
+        await QuickFinishAudio();
     }
 
     private async void DetectMonitorChanges(bool detectCurrent = false)

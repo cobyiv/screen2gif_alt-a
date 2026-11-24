@@ -98,6 +98,7 @@ public partial class App : IDisposable
 
         #endregion
 
+        QuickCapture.QuickRuntime.InitializeSettings();
         #region If set, it allows only one instance per user
 
         //The singleton works on a per-user and per-executable mode.
@@ -189,7 +190,8 @@ public partial class App : IDisposable
 
         MainViewModel = (ApplicationViewModel)FindResource("AppViewModel") ?? new ApplicationViewModel();
 
-        RegisterShortcuts();
+        QuickCapture.QuickRuntime.Start();
+        if (NotifyIcon != null) NotifyIcon.Visibility = Visibility.Collapsed;
 
         #endregion
 
@@ -201,8 +203,8 @@ public partial class App : IDisposable
         #region Tasks
 
         Task.Factory.StartNew(MainViewModel.ClearTemporaryFiles, TaskCreationOptions.LongRunning);
-        Task.Factory.StartNew(async () => await MainViewModel.CheckForUpdates(),TaskCreationOptions.LongRunning);
-        Task.Factory.StartNew(MainViewModel.SendFeedback, TaskCreationOptions.LongRunning);
+        // Quick Capture updates are applied through its maintained fork.
+        // No automatic feedback submission in Quick Capture.
 
         #endregion
 
@@ -391,6 +393,8 @@ public partial class App : IDisposable
 
     internal static void RegisterShortcuts()
     {
+        // Quick Capture owns global shortcuts. Native window-local commands remain available.
+        if (QuickCapture.QuickRuntime.Settings != null) return;
         //TODO: If startup/editor is open and focused, should I let the hotkeys work?
 
         //Registers all shortcuts.

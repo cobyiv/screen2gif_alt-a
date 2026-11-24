@@ -73,6 +73,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <Grid.Resources>
@@ -443,6 +444,7 @@
                                   Style="{StaticResource Style.Button.NoText}" Command="{Binding StopCommand}" KeyGesture="{Binding StopCommand, Converter={StaticResource CommandToKeyGesture}}" 
                                   ToolTip="{DynamicResource S.Recorder.Stop}" Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource Bool2Visibility}}"/>
             </Grid>
+            <WrapPanel Grid.Row="2" x:Name="QuickButtons" Visibility="Collapsed" Margin="3" MaxWidth="850"/>
         </Grid>
     </Border>
 </n:BaseScreenRecorder>
